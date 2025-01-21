@@ -82,6 +82,7 @@ void send_file_list(SOCKET client_socket) {
     while ((entry = readdir(dir)) != NULL) {
         if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
             snprintf(buffer, BUFFER_SIZE, "%s", entry->d_name);
+            Sleep(50);
             if(send_all(client_socket, buffer, strlen(buffer) + 1) != 0) {
                 perror("Failed to send file name");
                 closedir(dir);
