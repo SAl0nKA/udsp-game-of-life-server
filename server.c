@@ -78,10 +78,11 @@ void send_file_list(SOCKET client_socket) {
         perror("Failed to open directory");
         return;
     }
-
+    // Send each file in the directory to the client
     while ((entry = readdir(dir)) != NULL) {
         if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
             snprintf(buffer, BUFFER_SIZE, "%s", entry->d_name);
+            // Send file name including null terminator
             Sleep(50);
             if(send_all(client_socket, buffer, strlen(buffer) + 1) != 0) {
                 perror("Failed to send file name");
@@ -90,10 +91,13 @@ void send_file_list(SOCKET client_socket) {
             }
         }
     }
+
+    // Send a special message to indicate the end of the list
     snprintf(buffer, BUFFER_SIZE, "END_OF_LIST");
     if (send_all(client_socket, buffer, strlen(buffer) + 1) != 0) {
         perror("Failed to send end of file list");
     }
+
     closedir(dir);
 }
 
@@ -143,14 +147,13 @@ static int send_all(SOCKET socket, const char* buffer, size_t length) {
 
 // Function to receive all data
 static int recv_all(SOCKET socket, char* buffer, size_t length) {
-      size_t received = 0;
-       while(received < length)
-      {
-          int bytes = recv(socket, buffer + received, length - received, 0);
-          if(bytes <= 0) {
-             return -1;
-           }
-            received += bytes;
-      }
-     return 0;
+    size_t received = 0;
+    while(received < length) {
+        int bytes = recv(socket, buffer + received, length - received, 0);
+        if(bytes <= 0) {
+            return -1;
+        }
+        received += bytes;
+    }
+    return 0;
 }

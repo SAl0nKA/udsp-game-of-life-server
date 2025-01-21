@@ -4,10 +4,16 @@
 #include <winsock2.h>
 #include <pthread.h>
 #include "server.h"
+#include <errno.h>
 #include <sys/stat.h>
-#include <direct.h>
 
-#pragma comment(lib, "ws2_32.lib") // Linkovanie knižnice Winsock
+#ifdef _WIN32
+#include <direct.h>  // Pre Windows
+#else
+#include <unistd.h>  // Pre Linux/MacOS
+#endif
+
+// #pragma comment(lib, "ws2_32.lib") // Linkovanie knižnice Winsock
 
 volatile int running = 1;
 
@@ -34,7 +40,11 @@ int main() {
     int addr_len = sizeof(client_addr);
 
     // system("mkdir " FILE_DIR);
+#ifdef _WIN32
     if (mkdir(FILE_DIR) != 0) {
+#else
+    if (mkdir(FILE_DIR, 0777) != 0) {
+#endif
         if (errno == EEXIST) {
             // Directory already exists
             printf("Directory %s already exists.\n", FILE_DIR);
